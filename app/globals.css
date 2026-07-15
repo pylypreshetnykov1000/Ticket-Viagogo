@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: "Inter", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-ink antialiased;
+  font-family: var(--font-inter);
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-page px-4 sm:px-6;
+  }
+
+  /* Buttons — viagogo uses a solid olive-green primary and a green-outline secondary */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-full font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40;
+  }
+  .btn-green {
+    @apply btn bg-brand hover:bg-brand-dark text-white px-6 py-2.5 text-sm;
+  }
+  .btn-green-outline {
+    @apply btn border border-brand text-brand hover:bg-brand hover:text-white px-6 py-2 text-sm bg-white;
+  }
+  .btn-ghost {
+    @apply btn border border-line text-ink hover:border-ink-muted px-5 py-2 text-sm bg-white;
+  }
+
+  /* Filter / category pills */
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-brand cursor-pointer;
+  }
+  .pill-active {
+    @apply border-brand bg-brand/5 text-brand-dark;
+  }
+
+  /* Small urgency badge */
+  .badge-pink {
+    @apply inline-flex items-center gap-1 rounded-full bg-pink-soft px-2.5 py-1 text-xs font-medium text-pink;
+  }
+  .badge-green {
+    @apply inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 text-xs font-medium text-brand-dark;
+  }
+
+  /* Section heading — viagogo: 24px / 700 / line-height 28px / -0.5px tracking */
+  .section-title {
+    @apply text-[24px] font-bold leading-7 tracking-[-0.5px] text-ink-strong;
+  }
+
+  /* "Afficher tout" — viagogo: 16px / 400 / blue */
+  .link-blue {
+    @apply text-[16px] font-normal text-blue hover:text-blue-dark;
+  }
+
+  /* Back-compat aliases (map earlier names to viagogo palette) */
+  .btn-brand {
+    @apply btn-green;
+  }
+  .btn-outline {
+    @apply btn-green-outline;
+  }
+  .btn-tickets {
+    @apply btn-green px-5 py-2;
+  }
+}
+
+.scroll-thin::-webkit-scrollbar {
+  height: 8px;
+  width: 6px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: #c9d0da;
+  border-radius: 9999px;
+}
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* horizontal carousel */
+.carousel {
+  scroll-snap-type: x mandatory;
+}
+.carousel > * {
+  scroll-snap-align: start;
+}
