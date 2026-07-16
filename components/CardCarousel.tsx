@@ -25,11 +25,11 @@ export default function CardCarousel({
     ref.current?.scrollBy({ left: dir * 700, behavior: "smooth" });
   }
 
-  // viagogo card widths: ~260px (below) / ~215px (overlay portrait)
+  // viagogo card widths: ~248px (overlay portrait) / ~220px (below)
   const itemWidth =
     variant === "overlay"
-      ? "w-[180px] sm:w-[215px]"
-      : "w-[220px] sm:w-[248px]";
+      ? "w-[200px] sm:w-[240px]"
+      : "w-[200px] sm:w-[220px]";
 
   return (
     <section className="relative">
@@ -37,7 +37,7 @@ export default function CardCarousel({
         <h2 className="section-title">{title}</h2>
         {viewAllHref && (
           <Link href={viewAllHref} className="link-blue whitespace-nowrap">
-            See all
+            View all
           </Link>
         )}
       </div>
@@ -45,7 +45,7 @@ export default function CardCarousel({
       <div className="relative">
         <div
           ref={ref}
-          className="carousel scroll-thin -mx-1 flex gap-5 overflow-x-auto px-1 pb-2"
+          className="carousel no-scrollbar -mx-1 flex gap-5 overflow-x-auto px-1 pb-1"
         >
           {events.map((e) => (
             <div key={e.id} className={`${itemWidth} shrink-0`}>

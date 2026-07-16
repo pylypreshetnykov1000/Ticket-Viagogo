@@ -30,6 +30,15 @@ export function IconSearch({ size, ...rest }: IconProps) {
   );
 }
 
+/** Heart (favourite) — viagogo card favourite icon */
+export function IconHeart({ size, ...rest }: IconProps) {
+  return (
+    <svg {...base(size ?? 18, "0 0 20 20", { fill: "none", ...rest })} stroke="currentColor" strokeWidth={1.6}>
+      <path d="M10 17.5C10 17.5 2.5 13 2.5 7.75A3.75 3.75 0 0 1 10 5.5a3.75 3.75 0 0 1 7.5 2.25C17.5 13 10 17.5 10 17.5Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function IconBell({ size, ...rest }: IconProps) {
   return (
     <svg {...base(size ?? 16, "0 0 16 16", rest)}>

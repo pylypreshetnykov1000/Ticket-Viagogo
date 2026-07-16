@@ -28,7 +28,7 @@ export default function SearchBar({
       role="search"
       className={`flex w-full items-center gap-3 rounded-full border transition-colors focus-within:border-brand ${
         big
-          ? "h-[60px] border-[#c7ced6] bg-white px-5 shadow-sm"
+          ? "h-[60px] border-[#c7ced6] bg-white px-5 shadow-[0_4px_16px_rgba(16,24,40,0.10)]"
           : "h-11 border-line bg-surface px-4"
       }`}
     >

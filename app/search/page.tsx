@@ -26,9 +26,9 @@ export default async function SearchPage({
         {results.length} event{results.length !== 1 ? "s" : ""} found
       </p>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-line bg-white shadow-card">
+      <div className="mt-6 space-y-3">
         {results.length === 0 ? (
-          <div className="p-10 text-center">
+          <div className="rounded-xl border border-line bg-white p-10 text-center">
             <p className="text-sm text-ink-soft">
               No events found for “{q}”.
             </p>

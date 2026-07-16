@@ -34,9 +34,9 @@ body {
     @apply btn border border-line text-ink hover:border-ink-muted px-5 py-2 text-sm bg-white;
   }
 
-  /* Filter / category pills */
+  /* Filter / category pills — viagogo uses 8px radius, not fully round */
   .pill {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-brand cursor-pointer;
+    @apply inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:border-brand cursor-pointer;
   }
   .pill-active {
     @apply border-brand bg-brand/5 text-brand-dark;
@@ -72,16 +72,13 @@ body {
   }
 }
 
-.scroll-thin::-webkit-scrollbar {
-  height: 8px;
-  width: 6px;
+/* Hide scrollbars on carousels (viagogo has none) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
-.scroll-thin::-webkit-scrollbar-thumb {
-  background: #c9d0da;
-  border-radius: 9999px;
-}
-.scroll-thin::-webkit-scrollbar-track {
-  background: transparent;
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* horizontal carousel */
