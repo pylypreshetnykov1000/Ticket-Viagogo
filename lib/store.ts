@@ -2,18 +2,27 @@
  * SERVER-ONLY JSON data store. Never import from client components — data
  * reaches the client via page props or /api routes.
  *
- * Storage: data/db.json (gitignored), seeded from lib/data.ts on first read.
- * The dataset is tiny, so we read the file on every call — always fresh,
- * no cache invalidation to get wrong. Writes go through a temp file + rename.
+ * Storage: a JSON document seeded from lib/data.ts. Locally it lives in
+ * data/db.json (gitignored). On serverless hosts (Vercel) the project dir is
+ * READ-ONLY, so there we keep it in the writable temp dir and hold an
+ * in-memory copy as the authoritative cache + last-resort fallback — so a
+ * deployed demo works, but data resets when a serverless instance recycles.
+ * For durable cloud persistence swap this module for a real DB (see README).
  */
 import fs from "fs";
+import os from "os";
 import path from "path";
 import type { EventItem, Listing, Order, OrderStatus } from "./types";
 import { seedEvents } from "./data";
 import { generateListings, dealScoreFor, FEES_RATE } from "./derive";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+const IS_SERVERLESS = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const DATA_DIR = IS_SERVERLESS
+  ? path.join(os.tmpdir(), "viagogo-data")
+  : path.join(process.cwd(), "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
+
+let memDb: Db | null = null; // authoritative in-memory copy (survives warm invocations)
 
 interface Db {
   events: EventItem[];
@@ -30,15 +39,19 @@ function seedDb(): Db {
   return db;
 }
 
-function ensureDb(): void {
-  if (fs.existsSync(DB_FILE)) return;
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  writeDb(seedDb());
+/** Load the raw DB from the in-memory cache, then disk, then a fresh seed. */
+function loadRaw(): Db {
+  if (memDb) return memDb;
+  try {
+    if (fs.existsSync(DB_FILE)) return JSON.parse(fs.readFileSync(DB_FILE, "utf8")) as Db;
+  } catch {
+    // unreadable / corrupt — fall through to a fresh seed
+  }
+  return seedDb();
 }
 
 function readDb(): Db {
-  ensureDb();
-  const db = JSON.parse(fs.readFileSync(DB_FILE, "utf8")) as Db;
+  const db = loadRaw();
   let dirty = false;
 
   // migrate stores created before ticket listings existed
@@ -65,6 +78,7 @@ function readDb(): Db {
     }
   }
   if (dirty) writeDb(db);
+  else memDb = db;
   return db;
 }
 
@@ -88,10 +102,15 @@ function syncDerived(db: Db, eventId: string): void {
 }
 
 function writeDb(db: Db): void {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  const tmp = `${DB_FILE}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(db, null, 2));
-  fs.renameSync(tmp, DB_FILE);
+  memDb = db; // in-memory copy is always authoritative (and the serverless fallback)
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    const tmp = `${DB_FILE}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(db, null, 2));
+    fs.renameSync(tmp, DB_FILE);
+  } catch {
+    // read-only filesystem (serverless) — the in-memory copy is the store
+  }
 }
 
 export function getEvents(): EventItem[] {
