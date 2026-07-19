@@ -4,8 +4,7 @@ export interface WorldCupMatch {
   month: string;
   day: number;
   weekday: string;
-  homeFlag: string;
-  home: string;
+  home: string; // 3-letter team code, flag rendered via <Flag /> SVGs
   away: string;
   time: string;
   city: string;
@@ -19,9 +18,8 @@ export const worldCupMatches: WorldCupMatch[] = [
     month: "Jul",
     day: 18,
     weekday: "Sat",
-    homeFlag: "🇫🇷",
     home: "FRA",
-    away: "TBD",
+    away: "ENG",
     time: "5:00 PM",
     city: "Miami, FL, US",
     venue: "Hard Rock Stadium - Concert...",
@@ -32,9 +30,8 @@ export const worldCupMatches: WorldCupMatch[] = [
     month: "Jul",
     day: 19,
     weekday: "Sun",
-    homeFlag: "🇪🇸",
     home: "ESP",
-    away: "TBD",
+    away: "ARG",
     time: "3:00 PM",
     city: "East Rutherford, NJ, US",
     venue: "MetLife Stadium",
@@ -45,9 +42,8 @@ export const worldCupMatches: WorldCupMatch[] = [
     month: "Jul",
     day: 15,
     weekday: "Wed",
-    homeFlag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     home: "ENG",
-    away: "TBD",
+    away: "GER",
     time: "8:00 PM",
     city: "Dallas, TX, US",
     venue: "AT&T Stadium",
@@ -58,9 +54,8 @@ export const worldCupMatches: WorldCupMatch[] = [
     month: "Jul",
     day: 11,
     weekday: "Sat",
-    homeFlag: "🇧🇷",
     home: "BRA",
-    away: "TBD",
+    away: "POR",
     time: "4:00 PM",
     city: "Los Angeles, CA, US",
     venue: "SoFi Stadium",
@@ -73,11 +68,13 @@ export interface HomeCategory {
   href: string;
 }
 
+// Tiles and order mirror viagogo.fr (images downloaded from the origin CDN)
 export const popularCategories: HomeCategory[] = [
-  { label: "Pop", image: "/images/the-weeknd.jpg", href: "/concerts" },
-  { label: "Rock Music", image: "/images/scorpions.jpg", href: "/concerts" },
-  { label: "Soccer", image: "/images/man-utd-wrexham.jpg", href: "/sport" },
+  { label: "Pop", image: "/images/cat-pop.jpg", href: "/concerts" },
+  { label: "Rock Music", image: "/images/cat-rock.jpg", href: "/concerts" },
+  { label: "Football", image: "/images/cat-football.jpg", href: "/sport" },
+  { label: "Formula 1", image: "/images/cat-formula-1.jpg", href: "/sport" },
+  { label: "Cricket", image: "/images/cat-cricket.jpg", href: "/sport" },
   { label: "Ice Hockey", image: "/images/seattle-kraken.jpg", href: "/sport" },
   { label: "Tennis", image: "/images/davis-cup.jpg", href: "/sport" },
-  { label: "Classical", image: "/images/andre-rieu.jpg", href: "/theatre" },
 ];

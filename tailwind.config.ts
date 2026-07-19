@@ -19,7 +19,7 @@ const config: Config = {
           faint: "#8b94a3",
         },
         brand: {
-          DEFAULT: "#4c7a02", // olive/leaf green — primary buttons & accents
+          DEFAULT: "#4e7c05", // olive/leaf green — primary buttons & accents (rgb 78,124,5)
           dark: "#3f6600", // rgb 63,102,0
           light: "#6ba714", // logo green
           tint: "#e7ffc3", // light green pill bg (rgb 231,255,195)

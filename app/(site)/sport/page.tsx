@@ -1,5 +1,8 @@
 import CategoryListing from "@/components/CategoryListing";
-import { eventsByCategory } from "@/lib/data";
+import { getEvents } from "@/lib/store";
+import { eventsByCategory } from "@/lib/derive";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Sports tickets | viagogo",
@@ -7,7 +10,7 @@ export const metadata = {
 };
 
 export default function SportPage() {
-  const events = eventsByCategory("sport");
+  const events = eventsByCategory(getEvents(), "sport");
   const cities = Array.from(new Set(events.map((e) => e.city))).sort();
   return (
     <CategoryListing

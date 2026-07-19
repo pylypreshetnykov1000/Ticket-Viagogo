@@ -3,7 +3,8 @@ import Image from "next/image";
 export default function SpotifyBanner() {
   return (
     <section>
-      <div className="flex flex-col items-start gap-4 rounded-2xl bg-announce px-6 py-5 text-white sm:flex-row sm:items-center">
+      {/* viagogo.fr: pure black, radius 12, padding 24, total height ~95px */}
+      <div className="flex flex-col items-start gap-4 rounded-xl bg-black p-6 text-white sm:flex-row sm:items-center">
         <div className="flex flex-shrink-0 items-center">
           <Image
             src="/images/spotify-logo.png"

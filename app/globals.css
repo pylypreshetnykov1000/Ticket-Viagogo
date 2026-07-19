@@ -16,8 +16,9 @@ body {
 }
 
 @layer components {
+  /* viagogo: 1200px content + 32px side padding (outer 1264px) */
   .container-page {
-    @apply mx-auto w-full max-w-page px-4 sm:px-6;
+    @apply mx-auto w-full max-w-[1264px] px-4 sm:px-8;
   }
 
   /* Buttons — viagogo uses a solid olive-green primary and a green-outline secondary */
@@ -34,12 +35,13 @@ body {
     @apply btn border border-line text-ink hover:border-ink-muted px-5 py-2 text-sm bg-white;
   }
 
-  /* Filter / category pills — viagogo uses 8px radius, not fully round */
+  /* Filter / category pills — viagogo: h32, 8px radius, 12px x-padding,
+     border #b1bac2, black text; active: #e7ffc3 bg + green border/text */
   .pill {
-    @apply inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:border-brand cursor-pointer;
+    @apply inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#b1bac2] bg-white px-3 text-sm font-medium text-black transition-colors hover:border-brand cursor-pointer;
   }
   .pill-active {
-    @apply border-brand bg-brand/5 text-brand-dark;
+    @apply border-brand bg-brand-tint text-brand;
   }
 
   /* Small urgency badge */

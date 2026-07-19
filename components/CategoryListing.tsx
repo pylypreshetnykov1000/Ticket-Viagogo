@@ -72,9 +72,9 @@ export default function CategoryListing({
           <h2 className="mb-4 mt-10 text-[24px] font-bold leading-7 tracking-[-0.5px] text-white">
             Trending events near Stockholm
           </h2>
-          <div className="no-scrollbar flex gap-5 overflow-x-auto pb-1">
+          <div className="no-scrollbar flex gap-6 overflow-x-auto pb-1">
             {trending.map((e) => (
-              <div key={e.id} className="w-[200px] shrink-0 sm:w-[220px]">
+              <div key={e.id} className="w-[190px] shrink-0 sm:w-[220px]">
                 <EventCard event={e} onDark />
               </div>
             ))}

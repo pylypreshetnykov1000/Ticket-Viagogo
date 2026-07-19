@@ -1,49 +1,55 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import Link from "next/link";
-import { getEvent } from "@/lib/data";
+import type { EventItem, Listing } from "@/lib/types";
 import { formatFullDate, formatPrice } from "@/lib/format";
+import { FEES_RATE } from "@/lib/derive";
+import { placeOrder, type CheckoutState } from "@/app/(site)/checkout/actions";
 import { IconCheck } from "./icons";
 
-const FEES_RATE = 0.15;
-
 export default function CheckoutClient({
-  eventId,
-  listingId,
+  event,
+  listing,
   qty,
-  price,
-  section,
-  zone,
 }: {
-  eventId: string;
-  listingId: string;
+  event: EventItem | null;
+  listing: Listing | null;
   qty: number;
-  price: number;
-  section: string;
-  zone: string;
 }) {
-  const event = getEvent(eventId);
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [done, setDone] = useState(false);
+  const [state, action, pending] = useActionState<CheckoutState, FormData>(placeOrder, {
+    error: null,
+  });
+
+  // price/section/zone come from the server-resolved listing — not the URL
+  const price = listing?.pricePerTicket ?? 0;
 
   const totals = useMemo(() => {
     const subtotal = price * qty;
     const fees = Math.round(subtotal * FEES_RATE);
-    const delivery = 0;
-    return { subtotal, fees, delivery, total: subtotal + fees + delivery };
+    return { subtotal, fees, delivery: 0, total: subtotal + fees };
   }, [price, qty]);
 
-  if (!event) {
+  if (!event || !listing) {
     return (
       <div className="container-page py-16 text-center">
-        <p className="text-ink-soft">Event not found.</p>
-        <Link href="/" className="btn-brand mt-4">Back to home</Link>
+        <p className="text-ink-soft">
+          {event ? "This ticket listing is no longer available." : "Event not found."}
+        </p>
+        <Link href={event ? `/event/${event.id}` : "/"} className="btn-brand mt-4">
+          {event ? "Back to tickets" : "Back to home"}
+        </Link>
       </div>
     );
   }
 
-  if (done) {
+  const section = listing.section + (listing.row ? ` · ${listing.row}` : "");
+  const zone = listing.zone;
+  const soldOut = listing.available < qty;
+
+  // real confirmation, driven by the server action's returned order id
+  if (state.orderId) {
     return (
       <div className="container-page py-16">
         <div className="mx-auto max-w-lg rounded-2xl border border-line bg-white p-8 text-center shadow-card">
@@ -54,16 +60,20 @@ export default function CheckoutClient({
           </div>
           <h1 className="text-xl font-bold text-ink">Order confirmed!</h1>
           <p className="mt-2 text-sm text-ink-soft">
-            Your {qty} ticket{qty > 1 ? "s" : ""} for <strong>{event.name}</strong> have been
-            booked. A confirmation email has been sent to you (demo).
+            Your {qty} ticket{qty > 1 ? "s" : ""} for <strong>{event.name}</strong> are booked.
+            A confirmation email has been sent (demo).
           </p>
           <div className="mt-4 rounded-lg bg-surface p-4 text-left text-sm">
+            <Row label="Order number" value={state.orderId} bold />
             <Row label="Event" value={event.name} />
             <Row label="Section" value={`${zone} · ${section}`} />
             <Row label="Quantity" value={`${qty} ticket${qty > 1 ? "s" : ""}`} />
             <Row label="Total paid" value={formatPrice(totals.total)} bold />
           </div>
-          <Link href="/" className="btn-brand mt-6 w-full">Back to home</Link>
+          <div className="mt-6 flex gap-3">
+            <Link href={`/event/${event.id}`} className="btn-outline flex-1">More tickets</Link>
+            <Link href="/" className="btn-brand flex-1">Back to home</Link>
+          </div>
         </div>
       </div>
     );
@@ -83,25 +93,17 @@ export default function CheckoutClient({
       <ol className="mb-8 flex items-center gap-2 text-sm">
         {["Your tickets", "Delivery", "Payment"].map((label, i) => {
           const n = (i + 1) as 1 | 2 | 3;
-          const state = step === n ? "active" : step > n ? "done" : "todo";
+          const s = step === n ? "active" : step > n ? "done" : "todo";
           return (
             <li key={label} className="flex flex-1 items-center gap-2">
               <span
                 className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                  state === "active"
-                    ? "bg-brand text-white"
-                    : state === "done"
-                    ? "bg-brand text-white"
-                    : "bg-surface text-ink-faint"
+                  s === "todo" ? "bg-surface text-ink-faint" : "bg-brand text-white"
                 }`}
               >
-                {state === "done" ? "✓" : n}
+                {s === "done" ? "✓" : n}
               </span>
-              <span
-                className={`hidden sm:inline ${
-                  state === "todo" ? "text-ink-faint" : "font-medium text-ink"
-                }`}
-              >
+              <span className={`hidden sm:inline ${s === "todo" ? "text-ink-faint" : "font-medium text-ink"}`}>
                 {label}
               </span>
               {i < 2 && <span className="h-px flex-1 bg-line" />}
@@ -129,10 +131,22 @@ export default function CheckoutClient({
                 <div className="mt-3 flex items-center gap-2 text-sm text-brand-dark">
                   <IconCheck size={14} /> Covered by the viagogo Guarantee
                 </div>
+                {listing.available <= 6 && !soldOut && (
+                  <p className="mt-2 text-xs font-semibold text-pink">
+                    Only {listing.available} left for this listing.
+                  </p>
+                )}
               </div>
-              <button onClick={() => setStep(2)} className="btn-brand mt-6">
-                Continue to delivery
-              </button>
+              {soldOut ? (
+                <p className="mt-6 rounded-lg bg-pink-soft px-4 py-3 text-sm font-medium text-pink">
+                  These tickets just sold out.{" "}
+                  <Link href={`/event/${event.id}`} className="underline">See other listings</Link>.
+                </p>
+              ) : (
+                <button onClick={() => setStep(2)} className="btn-brand mt-6">
+                  Continue to delivery
+                </button>
+              )}
             </div>
           )}
 
@@ -165,27 +179,30 @@ export default function CheckoutClient({
           )}
 
           {step === 3 && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setDone(true);
-              }}
-            >
+            <form action={action}>
+              {/* the ticket identity — price is resolved & validated server-side */}
+              <input type="hidden" name="eventId" value={event.id} />
+              <input type="hidden" name="listingId" value={listing.id} />
+              <input type="hidden" name="qty" value={qty} />
+
               <h2 className="text-lg font-bold text-ink">Payment</h2>
               <p className="mt-1 text-xs text-ink-faint">
                 Demo — do not enter any real card details.
               </p>
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label="Name on card" className="sm:col-span-2" placeholder="John Smith" />
-                <Field label="Card number" className="sm:col-span-2" placeholder="4242 4242 4242 4242" />
-                <Field label="Expiry" placeholder="MM/YY" />
-                <Field label="CVC" placeholder="123" />
-                <Field label="Email" className="sm:col-span-2" type="email" placeholder="you@example.com" />
+                <Field name="customerName" label="Name on card" className="sm:col-span-2" placeholder="John Smith" />
+                <Field name="card" label="Card number" className="sm:col-span-2" placeholder="4242 4242 4242 4242" />
+                <Field name="expiry" label="Expiry" placeholder="MM/YY" />
+                <Field name="cvc" label="CVC" placeholder="123" />
+                <Field name="customerEmail" label="Email" className="sm:col-span-2" type="email" placeholder="you@example.com" />
               </div>
+              {state.error && (
+                <p className="mt-3 text-sm font-medium text-pink">{state.error}</p>
+              )}
               <div className="mt-6 flex gap-3">
                 <button type="button" onClick={() => setStep(2)} className="btn-outline">Back</button>
-                <button type="submit" className="btn-brand flex-1">
-                  Pay {formatPrice(totals.total)}
+                <button type="submit" disabled={pending} className="btn-brand flex-1 disabled:opacity-60">
+                  {pending ? "Processing…" : `Pay ${formatPrice(totals.total)}`}
                 </button>
               </div>
               <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-ink-faint">
@@ -198,9 +215,7 @@ export default function CheckoutClient({
         {/* Order summary */}
         <aside className="lg:sticky lg:top-32 lg:self-start">
           <div className="rounded-xl border border-line bg-white p-5 shadow-card">
-            <h3 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
-              Summary
-            </h3>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Summary</h3>
             <div className="mt-3 border-b border-line pb-3">
               <p className="text-sm font-semibold text-ink">{event.name}</p>
               <p className="mt-1 text-xs text-ink-soft">{formatFullDate(event.date)}</p>
@@ -235,11 +250,13 @@ function Row({ label, value, bold }: { label: string; value: string; bold?: bool
 }
 
 function Field({
+  name,
   label,
   placeholder,
   type = "text",
   className = "",
 }: {
+  name: string;
   label: string;
   placeholder?: string;
   type?: string;
@@ -250,6 +267,7 @@ function Field({
       <span className="mb-1 block text-xs font-medium text-ink-soft">{label}</span>
       <input
         type={type}
+        name={name}
         required
         placeholder={placeholder}
         className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"

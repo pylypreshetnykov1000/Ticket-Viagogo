@@ -1,6 +1,7 @@
 import Link from "next/link";
 import EventRow from "@/components/EventRow";
-import { searchEvents } from "@/lib/data";
+import { getEvents } from "@/lib/store";
+import { searchEvents } from "@/lib/derive";
 
 export const metadata = { title: "Search | viagogo" };
 
@@ -10,7 +11,7 @@ export default async function SearchPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q = "" } = await searchParams;
-  const results = searchEvents(q);
+  const results = searchEvents(getEvents(), q);
 
   return (
     <div className="container-page py-8">

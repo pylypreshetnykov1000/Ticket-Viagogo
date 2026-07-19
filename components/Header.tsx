@@ -66,22 +66,31 @@ export default function Header() {
           <Link href="/compte" className="whitespace-nowrap text-[14px] font-normal text-ink hover:text-brand-dark">
             Sign in
           </Link>
-          <button className="text-ink-soft hover:text-ink" aria-label="Account">
-            <IconUser size={34} />
-          </button>
+          {/* origin: 32px surface circles, 16px glyphs, 8px red dot at corner */}
+          <Link
+            href="/compte"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink hover:text-brand-dark"
+            aria-label="Sign in"
+          >
+            <IconUser size={16} />
+          </Link>
           <button
-            className="relative flex h-9 w-9 items-center justify-center rounded-full bg-surface text-ink-soft hover:text-ink"
+            className="relative flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink hover:text-brand-dark"
             aria-label="Notifications"
           >
-            <IconBell size={18} />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-pink" />
+            <IconBell size={16} />
+            <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-[#d81819]" />
           </button>
         </nav>
 
         {/* Mobile controls */}
-        <div className="ml-auto flex items-center gap-1 lg:hidden">
-          <Link href="/compte" className="text-ink-soft" aria-label="Account">
-            <IconUser size={34} />
+        <div className="ml-auto flex items-center gap-2 lg:hidden">
+          <Link
+            href="/compte"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-ink"
+            aria-label="Account"
+          >
+            <IconUser size={16} />
           </Link>
           <button
             className="flex h-9 w-9 items-center justify-center rounded-full text-ink"
@@ -93,11 +102,10 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Row 2: search bar — left-indented to align with the nav, capped width */}
+      {/* Row 2: search bar — centered, 880px wide (viagogo.fr) */}
       <div className="border-b border-line pb-4 md:pb-5">
-        <div className="container-page flex">
-          <div className="hidden w-[150px] shrink-0 md:block" />
-          <div className="w-full max-w-[900px]">
+        <div className="container-page">
+          <div className="mx-auto w-full max-w-[880px]">
             <SearchBar size="lg" />
           </div>
         </div>

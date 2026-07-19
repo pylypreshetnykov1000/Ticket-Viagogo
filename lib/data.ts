@@ -1,4 +1,4 @@
-import type { Category, EventItem, Listing } from "./types";
+import type { Category, EventItem } from "./types";
 
 export const categories: Category[] = [
   {
@@ -30,22 +30,65 @@ export const gradients: Record<string, string> = {
   f: "linear-gradient(135deg,#232526,#414345)",
 };
 
+// SEED DATA ONLY — runtime data lives in data/db.json via lib/store.ts.
 // Events use real performer names + locally hosted images sourced from viagogo.fr
-export const events: EventItem[] = [
+export const seedEvents: EventItem[] = [
   // --- Concerts ---
   {
     id: "the-weeknd",
     name: "The Weeknd - After Hours Til Dawn Tour",
     performer: "The Weeknd",
     category: "concerts",
-    date: "2026-09-28T20:00:00",
-    venue: "Groupama Stadium",
-    city: "Lyon",
-    country: "France",
+    date: "2026-08-08T19:30:00",
+    venue: "Strawberry Arena (formerly Friends Arena)",
+    city: "Stockholm",
+    country: "Sweden",
     image: "/images/the-weeknd.jpg",
     minPrice: 79,
     listingCount: 412,
     popularity: 98,
+  },
+  {
+    id: "the-neighbourhood",
+    name: "The Neighbourhood - World Tour",
+    performer: "The Neighbourhood",
+    category: "concerts",
+    date: "2026-08-24T19:00:00",
+    venue: "Avicii Arena (formerly Ericsson Globe)",
+    city: "Stockholm",
+    country: "Sweden",
+    image: "/images/the-neighbourhood.jpg",
+    minPrice: 68,
+    listingCount: 231,
+    popularity: 93,
+  },
+  {
+    id: "noah-kahan",
+    name: "Noah Kahan - Stick Season Tour",
+    performer: "Noah Kahan",
+    category: "concerts",
+    date: "2026-11-29T19:30:00",
+    venue: "Avicii Arena (formerly Ericsson Globe)",
+    city: "Stockholm",
+    country: "Sweden",
+    image: "/images/noah-kahan.jpg",
+    minPrice: 74,
+    listingCount: 287,
+    popularity: 91,
+  },
+  {
+    id: "robyn",
+    name: "Robyn - Live in Stockholm",
+    performer: "Robyn",
+    category: "concerts",
+    date: "2026-10-17T19:00:00",
+    venue: "3Arena (Stockholm)",
+    city: "Stockholm",
+    country: "Sweden",
+    image: "/images/robyn.jpg",
+    minPrice: 61,
+    listingCount: 154,
+    popularity: 86,
   },
   {
     id: "pitbull",
@@ -178,10 +221,10 @@ export const events: EventItem[] = [
     name: "Westlife - The Wild Dreams Tour",
     performer: "Westlife",
     category: "concerts",
-    date: "2026-11-02T20:00:00",
-    venue: "Accor Arena",
-    city: "Paris",
-    country: "France",
+    date: "2026-11-20T19:00:00",
+    venue: "Avicii Arena (formerly Ericsson Globe)",
+    city: "Stockholm",
+    country: "Sweden",
     image: "/images/westlife.jpg",
     minPrice: 70,
     listingCount: 189,
@@ -346,6 +389,20 @@ export const events: EventItem[] = [
     popularity: 78,
   },
   {
+    id: "jimmy-carr",
+    name: "Jimmy Carr - Laughs Funny Tour",
+    performer: "Jimmy Carr",
+    category: "theatre",
+    date: "2026-12-18T19:30:00",
+    venue: "Cirkus",
+    city: "Stockholm",
+    country: "Sweden",
+    image: "/images/jimmy-carr.jpg",
+    minPrice: 52,
+    listingCount: 118,
+    popularity: 84,
+  },
+  {
     id: "johann-strauss",
     name: "New Year's Grand Concert - Johann Strauss",
     performer: "Johann Strauss",
@@ -360,113 +417,3 @@ export const events: EventItem[] = [
     popularity: 73,
   },
 ];
-
-export function getEvent(id: string): EventItem | undefined {
-  return events.find((e) => e.id === id);
-}
-
-export function eventsByCategory(cat: string): EventItem[] {
-  return events
-    .filter((e) => e.category === cat)
-    .sort((a, b) => b.popularity - a.popularity);
-}
-
-export function popularEvents(limit = 8): EventItem[] {
-  return [...events].sort((a, b) => b.popularity - a.popularity).slice(0, limit);
-}
-
-export function searchEvents(q: string): EventItem[] {
-  const s = q.trim().toLowerCase();
-  if (!s) return [];
-  return events.filter(
-    (e) =>
-      e.name.toLowerCase().includes(s) ||
-      e.performer.toLowerCase().includes(s) ||
-      e.city.toLowerCase().includes(s) ||
-      e.venue.toLowerCase().includes(s)
-  );
-}
-
-// Deterministic pseudo-random listing generator (stable per event id)
-function seeded(seed: number) {
-  let s = seed % 2147483647;
-  if (s <= 0) s += 2147483646;
-  return () => (s = (s * 16807) % 2147483647) / 2147483647;
-}
-
-const ZONES: Listing["zone"][] = [
-  "Golden Circle",
-  "Lower Tier",
-  "Upper Tier",
-  "Floor",
-  "Balcony",
-  "Orchestra",
-];
-
-const TYPES: Listing["ticketType"][] = ["E-ticket", "Mobile ticket", "Paper ticket"];
-
-const FEATURE_POOL = [
-  "Seats together",
-  "Unobstructed view",
-  "Instant delivery",
-  "Fast entry",
-  "Drinks included",
-  "Close to the stage",
-];
-
-export function generateListings(event: EventItem): Listing[] {
-  const seedNum = event.id
-    .split("")
-    .reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const rand = seeded(seedNum);
-  const count = 14 + Math.floor(rand() * 10);
-  const listings: Listing[] = [];
-
-  for (let i = 0; i < count; i++) {
-    const zone = ZONES[Math.floor(rand() * ZONES.length)];
-    const zoneMult =
-      zone === "Golden Circle"
-        ? 2.6
-        : zone === "Orchestra"
-        ? 2.1
-        : zone === "Lower Tier"
-        ? 1.5
-        : zone === "Balcony"
-        ? 1.3
-        : zone === "Upper Tier"
-        ? 1.1
-        : 1.0;
-    const price = Math.round(
-      (event.minPrice * zoneMult * (0.9 + rand() * 0.6)) / 1
-    );
-    const maxQty = 1 + Math.floor(rand() * 4);
-    const qty = Array.from({ length: maxQty }, (_, k) => k + 1);
-    const nFeatures = 1 + Math.floor(rand() * 3);
-    const features = [...FEATURE_POOL]
-      .sort(() => rand() - 0.5)
-      .slice(0, nFeatures);
-
-    const deal =
-      price < event.minPrice * 1.3
-        ? "Great deal"
-        : price > event.minPrice * 2.2
-        ? "Premium"
-        : "Average price";
-
-    listings.push({
-      id: `${event.id}-L${i + 1}`,
-      section: `Section ${String.fromCharCode(65 + (i % 8))}${
-        10 + Math.floor(rand() * 40)
-      }`,
-      row: `Row ${1 + Math.floor(rand() * 25)}`,
-      quantity: qty,
-      pricePerTicket: price,
-      ticketType: TYPES[Math.floor(rand() * TYPES.length)],
-      features,
-      dealScore: deal,
-      zone,
-    });
-  }
-
-  return listings.sort((a, b) => a.pricePerTicket - b.pricePerTicket);
-}

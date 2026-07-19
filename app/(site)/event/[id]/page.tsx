@@ -4,12 +4,11 @@ import type { Metadata } from "next";
 import ListingsPanel from "@/components/ListingsPanel";
 import PerformerSidebar from "@/components/PerformerSidebar";
 import { IconCalendar, IconPin, IconUsers, IconCheck, IconBell } from "@/components/icons";
-import { events, getEvent, generateListings } from "@/lib/data";
+import { getEvent, getListings } from "@/lib/store";
 import { formatFullDate, formatPrice } from "@/lib/format";
 
-export function generateStaticParams() {
-  return events.map((e) => ({ id: e.id }));
-}
+// Events are editable via the admin panel — resolve at request time
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -48,7 +47,8 @@ export default async function EventPage({
   const event = getEvent(id);
   if (!event) notFound();
 
-  const listings = generateListings(event);
+  // Tickets come from the admin-managed store, not a generator
+  const listings = getListings(event.id);
 
   return (
     <>

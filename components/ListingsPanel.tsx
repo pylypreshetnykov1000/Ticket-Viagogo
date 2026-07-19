@@ -4,9 +4,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { EventItem, Listing } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
+import { FEES_RATE } from "@/lib/derive";
 import SeatMap from "./SeatMap";
-
-const FEES_RATE = 0.15;
 
 export default function ListingsPanel({
   event,
@@ -21,7 +20,8 @@ export default function ListingsPanel({
   const [sort, setSort] = useState<"price" | "zone">("price");
 
   const filtered = useMemo(() => {
-    let list = listings.filter((l) => l.quantity.includes(qty));
+    // a listing can serve this order only if it still has enough stock
+    let list = listings.filter((l) => l.quantity.includes(qty) && l.available >= qty);
     if (zone) list = list.filter((l) => l.zone === zone);
     list = [...list];
     if (sort === "price") list.sort((a, b) => a.pricePerTicket - b.pricePerTicket);
@@ -30,13 +30,11 @@ export default function ListingsPanel({
   }, [listings, zone, qty, sort]);
 
   function select(l: Listing) {
+    // only identify the ticket — price/section/zone resolve server-side
     const params = new URLSearchParams({
       event: event.id,
       listing: l.id,
       qty: String(qty),
-      price: String(l.pricePerTicket),
-      section: l.section,
-      zone: l.zone,
     });
     router.push(`/checkout?${params.toString()}`);
   }
@@ -145,6 +143,9 @@ function ListingCard({
         </div>
         <p className="mt-0.5 text-xs text-ink-soft">
           {listing.section} · {listing.row}
+          {listing.available <= 6 && (
+            <span className="ml-2 font-semibold text-pink">Only {listing.available} left</span>
+          )}
         </p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           <span className="rounded border border-line px-1.5 py-0.5 text-[11px] text-ink-soft">

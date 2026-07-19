@@ -52,14 +52,12 @@ export function IconBell({ size, ...rest }: IconProps) {
   );
 }
 
-/** Account avatar (includes viagogo's built-in light circle) */
+/** Account person glyph — origin renders this at 16px inside a 32px surface circle */
 export function IconUser({ size, ...rest }: IconProps) {
   return (
-    <svg {...base(size ?? 32, "0 0 25 25", rest)}>
-      <g fill="currentColor">
-        <ellipse cx="12" cy="11.897" fill="#eff5f8" stroke="#eff5f8" rx="11.5" ry="11.397" />
-        <path d="M20.439 20.356A12.014 12.014 0 0112 23.795a12.014 12.014 0 01-8.474-3.474l.478-3.33.362-.198c4.259-2.27 10.969-2.27 15.228 0l.361.199.484 3.364zM8.344 10.419l-.241-2.43a3.627 3.627 0 01.924-2.828 3.849 3.849 0 012.772-1.195c1.085 0 2.09.438 2.772 1.195.683.757 1.045 1.792.925 2.828l-.242 2.43c-.2 1.793-1.647 3.107-3.455 3.107s-3.295-1.354-3.455-3.107z" />
-      </g>
+    <svg {...base(size ?? 16, "0 0 16 16", rest)}>
+      <path d="M8 1.5a3.25 3.25 0 1 0 0 6.5 3.25 3.25 0 0 0 0-6.5" />
+      <path d="M8 9.25c-3.04 0-5.5 1.79-5.5 4.25 0 .552.448 1 1 1h9c.552 0 1-.448 1-1 0-2.46-2.46-4.25-5.5-4.25" />
     </svg>
   );
 }
